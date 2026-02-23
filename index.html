@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Orientation - Lycée Aimé Césaire</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .quiz-header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .quiz-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .quiz-progress {
+            background: #f1f5f9;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            flex: 1;
+            margin: 0 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .question-counter {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .score-badge {
+            background: #48bb78;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .quiz-content {
+            padding: 30px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .option-btn {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #2d3748;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: #edf2f7;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.selected {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border-color: #667eea;
+        }
+
+        .option-btn.correct {
+            background: #c6f6d5;
+            border-color: #48bb78;
+            color: #22543d;
+        }
+
+        .option-btn.incorrect {
+            background: #fed7d7;
+            border-color: #f56565;
+            color: #742a2a;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-letter {
+            width: 28px;
+            height: 28px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #667eea;
+            border: 1px solid #e2e8f0;
+        }
+
+        .option-btn.selected .option-letter {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .quiz-footer {
+            padding: 20px 30px 30px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .restart-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .restart-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .final-score {
+            font-size: 48px;
+            font-weight: 800;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .message {
+            font-size: 18px;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        @media (max-width: 600px) {
+            .quiz-header {
+                padding: 20px;
+            }
+
+            .quiz-content {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 18px;
+            }
+
+            .option-btn {
+                padding: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="quiz-container" id="quizContainer">
+        <!-- Le contenu sera généré par JavaScript -->
+    </div>
+
+    <script>
+        // 📚 QUESTIONS DU QCM (10 questions sur les formations)
+        const questions = [
+            {
+                question: "Quelle est la durée d'un CAP au lycée Aimé Césaire ?",
+                options: ["1 an", "2 ans", "3 ans", "4 ans"],
+                correct: 1 // index 1 = "2 ans"
+            },
+            {
+                question: "Le Bac Pro MELEC prépare à quel métier ?",
+                options: ["Boulanger", "Électricien", "Comptable", "Plombier"],
+                correct: 1
+            },
+            {
+                question: "Le Bac Pro AGOrA, c'est pour faire :",
+                options: [
+                    "De l'électricité",
+                    "De la gestion et de l'administration",
+                    "De la soudure",
+                    "De la vente"
+                ],
+                correct: 1
+            },
+            {
+                question: "En 2nde MRC, on étudie principalement :",
+                options: [
+                    "La mécanique",
+                    "La relation client",
+                    "L'électricité",
+                    "La soudure"
+                ],
+                correct: 1
+            },
+            {
+                question: "Le Bac Pro Métallerie forme à :",
+                options: [
+                    "La fabrication de bijoux",
+                    "La fabrication de garde-corps et portails",
+                    "La réparation automobile",
+                    "La menuiserie"
+                ],
+                correct: 1
+            },
+            {
+                question: "Après un Bac Pro, on peut :",
+                options: [
+                    "Travailler directement",
+                    "Faire un BTS",
+                    "Les deux",
+                    "Rien"
+                ],
+                correct: 2
+            },
+            {
+                question: "Combien de temps dure un Bac Pro ?",
+                options: ["2 ans", "3 ans", "4 ans", "5 ans"],
+                correct: 1
+            },
+            {
+                question: "La 2nde GATL prépare à quel Bac Pro ?",
+                options: ["MELEC", "Métallerie", "AGOrA", "Accueil"],
+                correct: 2
+            },
+            {
+                question: "En alternance, où apprend-on ?",
+                options: [
+                    "Uniquement au lycée",
+                    "Uniquement en entreprise",
+                    "Au lycée ET en entreprise",
+                    "À distance"
+                ],
+                correct: 2
+            },
+            {
+                question: "Le lycée Aimé Césaire propose des formations en :",
+                options: [
+                    "Électricité uniquement",
+                    "Commerce uniquement",
+                    "Électricité, métallerie, commerce, gestion et accueil",
+                    "Informatique uniquement"
+                ],
+                correct: 2
+            }
+        ];
+
+
+        let currentQuestion = 0;
+        let score = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let quizCompleted = false;
+
+        const quizContainer = document.getElementById('quizContainer');
+
+        function renderQuiz() {
+            if (quizCompleted) {
+                renderResults();
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+            let optionsHtml = '';
+            q.options.forEach((opt, idx) => {
+                let optionClass = 'option-btn';
+                if (userAnswers[currentQuestion] !== null) {
+                    if (idx === q.correct) {
+                        optionClass += ' correct';
+                    } else if (idx === userAnswers[currentQuestion] && idx !== q.correct) {
+                        optionClass += ' incorrect';
+                    }
+                } else if (userAnswers[currentQuestion] === idx) {
+                    optionClass += ' selected';
+                }
+
+                optionsHtml += `
+                    <button class="${optionClass}" 
+                            onclick="selectOption(${idx})"
+                            ${userAnswers[currentQuestion] !== null ? 'disabled' : ''}>
+                        <span class="option-letter">${String.fromCharCode(65 + idx)}</span>
+                        ${opt}
+                    </button>
+                `;
+            });
+
+            const html = `
+                <div class="quiz-header">
+                    <h1>🧠 Quiz Découverte</h1>
+                    <p>Teste tes connaissances sur les formations du lycée !</p>
+                </div>
+                <div class="quiz-progress">
+                    <span class="question-counter">Question ${currentQuestion + 1}/${questions.length}</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <span class="score-badge">🏆 ${score} pts</span>
+                </div>
+                <div class="quiz-content">
+                    <div class="question-text">${q.question}</div>
+                    <div class="options-grid">
+                        ${optionsHtml}
+                    </div>
+                </div>
+                <div class="quiz-footer">
+                    <button class="restart-btn" onclick="restartQuiz()">↺ Recommencer</button>
+                    <div>
+                        
+                        ${currentQuestion < questions.length - 1
+                    ? '<button class="nav-btn" onclick="nextQuestion()" ' + (userAnswers[currentQuestion] === null ? 'disabled' : '') + '>Suivant ▶</button>'
+                    : '<button class="nav-btn" onclick="finishQuiz()" ' + (userAnswers[currentQuestion] === null ? 'disabled' : '') + '>Voir mon score 🎯</button>'}
+                    </div>
+                </div>
+            `;
+
+            quizContainer.innerHTML = html;
+        }
+
+        function renderResults() {
+            // Calculer le score final
+            score = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].correct) {
+                    score++;
+                }
+            }
+
+            let message = '';
+            if (score === 10) message = 'Parfait ! 🏆 Tu connais tout sur le lycée !';
+            else if (score >= 8) message = 'Bravo ! Tu es incollable ! 🌟';
+            else if (score >= 6) message = 'Pas mal ! Tu as de bonnes bases ! 👍';
+            else if (score >= 4) message = 'Continue à découvrir nos formations ! 📚';
+            else message = 'Viens nous voir à la Journée Portes Ouvertes ! 😊';
+
+            const html = `
+                <div class="quiz-header">
+                    <h1>🎉 Résultat</h1>
+                    <p>Merci d'avoir participé !</p>
+                </div>
+                <div class="quiz-content result-card">
+                    <div class="final-score">${score}/${questions.length}</div>
+                    <div class="message">${message}</div>
+                    
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 15px; margin: 20px 0;">
+                        <h3 style="color: #2d3748; margin-bottom: 15px;">📌 Récapitulatif :</h3>
+                        ${questions.map((q, idx) => {
+                const isCorrect = userAnswers[idx] === q.correct;
+                return `
+                                <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 10px; border-left: 4px solid ${isCorrect ? '#48bb78' : '#f56565'};">
+                                    <span style="font-weight: 600;">Q${idx + 1}:</span> ${isCorrect ? '✅' : '❌'} 
+                                    <span style="color: #4a5568;">${q.question}</span><br>
+                                    <small style="color: #718096;">Réponse : ${q.options[q.correct]}</small>
+                                </div>
+                            `;
+            }).join('')}
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button class="nav-btn" onclick="restartQuiz()">🔁 Refaire le quiz</button>
+                        <a href="https://bilimh.github.io/thebot/" class="restart-btn" style="text-decoration: none;">🤖 Retour au chatbot</a>
+                    </div>
+                </div>
+            `;
+
+            quizContainer.innerHTML = html;
+        }
+
+        function selectOption(optionIndex) {
+            if (userAnswers[currentQuestion] !== null) return;
+
+            userAnswers[currentQuestion] = optionIndex;
+
+            if (optionIndex === questions[currentQuestion].correct) {
+                score++;
+            }
+
+            renderQuiz();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuiz();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            quizCompleted = true;
+            renderResults();
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            quizCompleted = false;
+            renderQuiz();
+        }
+
+        // Initialisation
+        renderQuiz();
+    </script>
+</body>
+
+</html>
